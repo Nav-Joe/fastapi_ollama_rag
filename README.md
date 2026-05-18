@@ -37,8 +37,11 @@ curl -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d 
 ### 3.项目结构
 .
 ├── ai_service.py      # FastAPI 服务核心（含 RAG）
+
 ├── Dockerfile         # 容器化配置
+
 ├── requirements.txt   # Python 依赖
+
 └── README.md          # 项目文档
 ### 4.技术亮点
 完整的 RAG 流程：文档切分 → 向量化 → ChromaDB 存储 → 检索生成
