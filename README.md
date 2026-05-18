@@ -36,7 +36,7 @@ curl -X POST "http://localhost:8000/upload" -F "file=@你的文档.txt"
 curl -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d "{\"question\":\"文档里说了什么？\"}"
 ### 3.项目结构
 .
-├── ai_service.py      # FastAPI 服务核心（含 RAG）
+├── services.py      # FastAPI 服务核心（含 RAG）
 
 ├── Dockerfile         # 容器化配置
 
