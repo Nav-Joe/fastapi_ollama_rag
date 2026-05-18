@@ -38,7 +38,7 @@ curl -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d 
 .
 ├── services.py      # FastAPI 服务核心（含 RAG）
 
-├── Dockerfile         # 容器化配置
+├── dockerfile         # 容器化配置
 
 ├── requirements.txt   # Python 依赖
 
