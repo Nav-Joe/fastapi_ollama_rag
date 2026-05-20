@@ -15,6 +15,22 @@ retriever = None
 class AskRequest(BaseModel):
     question: str
 
+
+# 启动时自动加载已有向量库
+@app.on_event("startup")
+async def load_existing_vectorstore():
+    global vectorstore, retriever
+    if os.path.exists("./chroma_db"):
+        embeddings = OllamaEmbeddings(model="qwen2.5:3b")
+        vectorstore = Chroma(
+            persist_directory="./chroma_db",
+            embedding_function=embeddings
+        )
+        retriever = vectorstore.as_retriever()
+        print(f"加载已有向量库，共 {vectorstore._collection.count()} 条记录")
+    else:
+        print("没有已有向量库，等待上传")
+
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     global vectorstore, retriever
@@ -31,7 +47,15 @@ async def upload(file: UploadFile = File(...)):
     
     # 向量化存储
     embeddings = OllamaEmbeddings(model="qwen2.5:3b")
-    vectorstore = Chroma.from_documents(chunks, embeddings)
+    # 如果已有向量库，追加；没有就创建
+    if vectorstore is not None:
+        vectorstore.add_documents(chunks)
+    else:
+        vectorstore = Chroma.from_documents(
+            chunks, 
+            embeddings,
+            persist_directory="./chroma_db"
+        )
     retriever = vectorstore.as_retriever()
     
     os.remove(temp_path)
@@ -72,3 +96,16 @@ async def chat(req: ChatRequest):
         return {"reply": reply}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/clear")
+async def clear(confirm: str = ""):
+    if confirm != "yes":
+        raise HTTPException(status_code=400, detail="请传入 confirm=yes 确认清空")
+    
+    global vectorstore, retriever
+    if os.path.exists("./chroma_db"):
+        shutil.rmtree("./chroma_db")
+    vectorstore = None
+    retriever = None
+    return {"message": "向量库已清空"}
