@@ -5,8 +5,14 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 安装supervisor
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
 COPY services.py .
+COPY app.py .
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 8000
+# 暴露两个端口
+EXPOSE 8000 7861
 
-CMD ["uvicorn", "services:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
