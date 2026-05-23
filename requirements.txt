@@ -6,3 +6,5 @@ langchain-ollama
 langchain-chroma
 langchain-text-splitters
 python-multipart
+gradio
+supervisor
