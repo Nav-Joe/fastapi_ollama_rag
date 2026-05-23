@@ -17,6 +17,7 @@
 - **RAG 知识库**：上传文档 → 向量化存储 → 基于文档问答
 - Docker 一键部署
 - 自动异常处理与日志记录
+- 一个简易的gradio前端界面
 
 ## 快速开始
 
@@ -26,7 +27,7 @@ bash
 
 docker build -t ai-service-rag .
 
-docker run -p 8000:8000 -e OLLAMA_HOST=http://host.docker.internal:11434 ai-service-rag
+docker run -p 8000:8000 -p 7861:7861 -e OLLAMA_HOST=http://host.docker.internal:11434 ai-service-rag
 ### 2.RAG知识库使用
 
 bash
@@ -35,14 +36,31 @@ curl -X POST "http://localhost:8000/upload" -F "file=@你的文档.txt"
 
 curl -X POST "http://localhost:8000/ask" -H "Content-Type: application/json" -d "{\"question\":\"文档里说了什么？\"}"
 ### 3.项目结构
-.
-├── services.py      # FastAPI 服务核心（含 RAG）
+ai-chat-service/                    # 项目根目录
 
-├── dockerfile         # 容器化配置
+├── ai_service.py                   # FastAPI后端核心（API接口 + RAG逻辑）
 
-├── requirements.txt   # Python 依赖
+├── app.py                          # Gradio前端界面
 
-└── README.md          # 项目文档
+├── Dockerfile                      # Docker配置（双服务：FastAPI + Gradio）
+
+├── supervisord.conf                # Supervisor进程管理配置
+
+├── requirements.txt                # Python依赖列表
+
+├── README.md                       # 项目文档
+
+├── chroma_db/                      # ChromaDB向量库持久化目录（运行后生成）
+
+│   └── ...
+
+├── fastapi.log                     # FastAPI运行日志（运行后生成）
+
+├── fastapi_err.log                 # FastAPI错误日志（运行后生成）
+
+├── gradio.log                      # Gradio运行日志（运行后生成）
+
+└── gradio_err.log                  # Gradio错误日志（运行后生成）
 ### 4.技术亮点
 完整的 RAG 流程：文档切分 → 向量化 → ChromaDB 存储 → 检索生成
 
